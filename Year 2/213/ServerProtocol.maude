@@ -1,0 +1,115 @@
+*** Server Protocol Maude File
+*** COMP213 - ASSIGNMENT #2
+*** BY: Fumiko Saito
+*** Username: U2FS || ID: 200784765
+
+*** load modules for Sorted Topic Lists
+*** and string utility operations:
+in MessageBoard
+in Utilities
+
+fmod  SERVER  is
+
+  protecting  MESSAGE_BOARD .    *** using Message, Topic, SortedTopicList
+  protecting  UTILITIES .        *** working with strings
+
+  *** get a list of all the topics from a topicID
+  op  getTopicIDs : SortedTopicList -> String .
+  
+  *** get a list of all the messages associated with a topic
+  op  getTopic : String SortedTopicList -> String .
+  
+  *** add a new topic to the sorted topic list
+  op  addNewTopic : String SortedTopicList -> SortedTopicList .
+  
+  *** add a new message to a particular topic
+  op  addMessage : String SortedTopicList -> SortedTopicList .
+  
+  *** determine whether a string is formatted correctly
+  op  isMessage : String -> Bool .
+  
+  *** determine whether a string contains a message body
+  op  isMsgText : String -> Bool .
+  
+  *** test if a line is pre-fixed with a 1
+  op  hasPrefix : String -> Bool .
+  
+  *** get a message from a string 
+  op  getMessage : String -> Message .
+  
+  *** equation to support getTopicIDs
+  op  listOfTopics : SortedTopicList -> SortedTopicList .
+
+  *** variables for equations
+  var  S : String .
+  var  L : SortedTopicList .
+  
+  ***   strToInt(getFirstLine(S)) converts the first line to an integer;
+  ***   this will be the ID of the topic to add a post to;
+  ***   afterFirstLine(S) will be the message to add,
+  ***   which should be formated according to protocol.
+  ***   If the client has sent a valid ID, which exists in the list,
+  ***   add the message and send an acknowledgment
+
+  cq  addMessage(S, L)  =
+        addPost(getMessage(afterFirstLine(S)), strToInt(getFirstLine(S)), L)
+      if  hasLine(S) 
+      and  isIntStr(getFirstLine(S)) 
+      and  isMessage(afterFirstLine(S)) .
+		 
+  *** strToInt(getFirstLine(S) converts the first line to an integer
+  *** this indicates the user wants to add a topic.
+  *** afterFirstLine(S) will be the new message to add to the topic
+  *** If the client has sent a string that agrees with the protocol
+  *** then add a new topic to the SortedTopicList list
+  cq  addNewTopic(S, L) = 
+  	addNewTopic(newMessage(afterFirstLine(S)), strToInt(getFirstLine(S)), L) 
+  		if hasLine(S)
+  			and isMessage(afterFirstLine(S)) .
+  
+  *** conditional equations
+  *** if the ID the user has inputted matches a topic in the list 
+  *** then output all messages corresponding that topic ID
+  *** HOWEVER if there are no topics that match the ID then send a String (in program "4")
+  cq getTopic(S, addNewTopic(M, T, L)) = strToInt(S) if getID(S) == strToInt(getFirstLine(S)) .
+  cq getTopic(S, addNewTopic(M, T, L)) = get(S, L) if getID(S) =/= strToInt(getFirstLine(S)) .
+  
+  *** equations to give a list of topics for the user
+  *** uses prefixLinesWith to ensure every ID/Topic will have an "\n" inbetween
+  eq  listOfTopics(newTopic(M, S, I)) = getSender(M) + "\n" + prefixLinesWith(getText(M), "1") + "\n.\n" .
+  eq  listOfTopics(addMessage(M, T)) = getSender(M) + "\n" + prefixLinesWith(getText(M), "1") + "\n.\n" + listOfTopics(T) .
+  
+  *** The list starts off as an empty list
+  eq listOfTopics(empty) = 0 .
+  
+  *** getTopicIDS simply posts a list of topics so make it equal a listOfTopics
+  eq getTopicIDs(L) = listofTopics(L) .
+  
+  *** equations which mainly test strings are valid
+  *** tests whether a string contains at least one newline character
+  eq  isMessage(S)  =  hasLine(S) and isMsgText(afterFirstLine(S)) .
+  
+  *** message text ends with "." on a sperate line
+  eq  isMsgText(".\n")  =  true .
+  
+  *** message text must be in seperate lines
+  cq  isMsgText(S)  =  false  if  not(hasLine(S)) .
+  
+  *** line of text must be prefixed by "1" and following lines must be correct
+  cq  isMsgText(S)  =  hasLine(S) and hasPrefix(getFirstLine(S))
+                       and isMsgText(afterFirstLine(S))
+      if  hasLine(S)  and  getFirstLine(S) =/= "." .
+
+  *** tests that a message text line begins with "1"
+  eq  hasPrefix(S)  =  find(S, "1", 0) == 0 .
+  
+  *** get a message from a string, if that string follows protocol
+  eq  getMessage(S)  =  newMessage(getFirstLine(S), afterFirstLine(S)) .
+			   
+endfm
+
+reduce getTopicIDs(addNewTopic("Wallpaper\nOskar Wild\n1Hello, Message Board!\n1Either that wallpaper goes\n1or I do.\n.\n", empty)) .
+
+reduce getTopic("0", addNewTopic("Wallpaper\nOskar Wild\n1Hello, Message Board!\n1Either that wallpaper goes\n1or I do.\n.\n", empty)) .
+
+reduce getTopicIDs(addNewTopic("Greeting\nJohn\n1Hello, everyone\n1how r u?\n.\n", empty)) .

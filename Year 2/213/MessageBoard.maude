@@ -1,0 +1,220 @@
+*** Message Board specification.
+***
+***  Specifications of Messages, Topics, and Sorted Topic Lists,
+***  for use in a simple Message Board server.
+***  Messages consist of two strings:
+***  the poster's name and the body of the message.
+***  Topics have: an integer ID (which should be unique)
+***  and a list of messages.
+***  Sorted Topic Lists are lists of Topics sorted by order of most-recent
+***  creation or update.
+***  Sorted Topic Lists allow the list to be updated by:
+***   - adding a new Topic
+***   - adding a Message to a particular Topic
+***  other helper operations are included to specify how these operations
+***  behave.
+
+fmod  MESSAGE_BOARD  is
+
+  protecting  STRING .  *** using Maude's built-in Strings
+  protecting  INT .     *** using Maude's built-in Integers
+
+    *** Messages in a message board.
+    ***
+  sort  Message .
+
+    *** "constructor": make a message from poster's name and message body
+    ***
+  op  newMessage : String   *** poster's name
+                   String   *** message body
+                   -> Message [ctor] .  *** message containing the given data
+
+    *** get the poster's name:
+    ***
+  op  getSender : Message -> String .
+  
+    *** get the message body:
+    ***
+  op  getText : Message -> String .
+
+
+  
+    *** Topics in a message board.
+    ***  Each topic has a title, an ID to identify the topic,
+    ***  and a list of messages (the first message, and all replies).
+    ***
+  sort  Topic .
+
+    *** "constructor":
+    *** create a new Topic, given a message to intiate the topic,
+    *** and an integer ID
+    *** (which should uniquely identify that topic in a Sorted Topic List)
+    ***
+  op  newTopic : Message String Int -> Topic [ctor] .
+
+    *** add a message to a topic:
+    ***
+  op  addMessage : Message Topic -> Topic [ctor] .
+
+    *** get the identifier of the topic:
+    ***
+  op  getID : Topic -> Int .
+
+    *** get the title of the topic:
+    ***
+  op  getTitle : Topic -> String .
+
+
+  
+    *** List of topics sorted by time of last update
+    ***
+  sort  SortedTopicList .
+
+    *** empty list of topics:
+    ***
+  op  empty : -> SortedTopicList [ctor] .
+
+    *** add a topic to the start of the list:
+    *** this operation simply allows us to build longer and longer lists,
+    *** and does not need equations to define its behaviour
+    ***
+  op  add : Topic SortedTopicList -> SortedTopicList [ctor] .
+
+    *** add a new topic to the lists;
+    *** this is one of the methods that "clients" may use to update
+    *** the Sorted Topic List:
+    *** the topic will be created from the given message,
+    *** with an ID that is the length of the list,
+    *** and that topic will be placed at the start of the list
+    ***
+  op  addNewTopic : Message          *** the message to initiate the topic
+                    String           *** the title of the topic
+                    SortedTopicList  *** the list to be updated
+                    -> SortedTopicList .  *** the result of updating the list
+
+    *** add a message to a particular topic;
+    *** this is one of the methods that "clients" may use to update
+    *** the Sorted Topic List:
+    *** the given message will be added to the topic with the given ID,
+    *** and the updated topic will be moved to the start of the list
+    ***
+  op  addPost : Message          *** the message to add
+                Int              *** the ID of the topic to add the message to
+                SortedTopicList  *** the list to update
+                -> SortedTopicList .  *** the updated list
+
+    *** get the length of the list;
+    *** this will be used to provide unique IDs for topics
+    ***
+  op  length : SortedTopicList -> Int .
+
+    *** get a topic, given its ID
+    ***
+  op  get : Int              *** the ID of the topic to find
+            SortedTopicList  *** the list to search for the topic in
+            -> Topic .  *** the topic with the given ID
+
+    *** remove the topic with the given ID from the list
+    ***
+  op  remove : Int              *** the ID of the topic to remove
+               SortedTopicList  *** the list to remove it from
+               -> SortedTopicList .  *** the list with the topic removed
+
+               
+  *** Equations
+  
+  var  M : Message .
+  var  ST : SortedTopicList .
+  var  I : Int .
+  var  T : Topic .
+  vars S S1 S2 : String .
+
+
+    *** the poster's name is the first string in a message
+    ***
+  eq  getSender(newMessage(S1, S2))  =  S1 .
+  
+    *** the message body is the second string in a message
+    ***
+  eq  getText(newMessage(S1, S2))  =  S2 .
+
+  
+  *** Equations for getID : Topic -> Int
+  
+    *** the ID of a newly-created topic is the given integer
+    ***
+  eq  getID(newTopic(M, S, I))  =  I .
+  
+    *** adding a reply to a topic doesn't change the ID
+    ***
+  eq  getID(addMessage(M,T))  =  getID(T) .
+
+  
+  *** Equations for getTitle : Topic -> String
+  
+    *** the ID of a newly-created topic is the given integer
+    ***
+  eq  getTitle(newTopic(M, S, I))  =  S .
+  
+    *** adding a reply to a topic doesn't change the ID
+    ***
+  eq  getTitle(addMessage(M, T))  =  getTitle(T) .
+
+  
+  *** Equation for addNewTopic : Message SortedTopicList -> SortedTopicList
+  
+    *** create a new topic with the given message and title;
+    *** ID is the length of the list;
+    *** place new topic at start of list
+    ***
+  eq  addNewTopic(M, S, ST)  =  add(newTopic(M, S, length(ST)), ST) .
+
+  
+  *** Equation for
+  *** addPost : Message Int SortedTopicList -> SortedTopicList
+  
+    *** find the topic with the given ID and add the message to it;
+    *** remove that topic from the list;
+    *** place it at the start of the list
+    ***
+  eq  addPost(M, I, ST)  =  add(addMessage(M, get(I,ST)),
+                                remove(I, ST)) .
+
+				      
+  *** Equations for get : Int SortedTopicList -> Topic
+  
+    *** if the first topic has the given integer as ID, return that topic
+    ***
+  cq  get(I, add(T,ST))  =  T           if  getID(T) == I .
+  
+    *** otherwise, look for the topic in the tail of the list
+    ***
+  cq  get(I, add(T,ST))  =  get(I,ST)   if  getID(T) =/= I .
+
+  
+  *** Equations for remove : Int SortedTopicList -> SortedTopicList
+  
+    *** removing from the empty list has no effect
+    ***
+  eq  remove(I, empty)  =  empty .
+
+    *** if the first topic has the given integer as ID, return the tail
+    ***
+  cq  remove(I, add(T,ST))  =  ST                    if  getID(T) == I .
+  
+    *** otherwise, keep the first topic, and remove from the tail of the list
+    ***
+  cq  remove(I, add(T,ST))  =  add(T, remove(I,ST))  if  getID(T) =/= I .
+
+  
+  *** Equations for length
+  
+    *** length of the empty list is zero
+    ***
+  eq  length(empty)  =  0 .
+  
+    *** length of a list with head and tail is length of the tail plus one
+    ***
+  eq  length(add(T,ST))  =  length(ST) + 1 .
+
+endfm

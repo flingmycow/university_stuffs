@@ -1,0 +1,130 @@
+<html>
+<head>
+<title>Fumi's Robot Treasure Hunt</title>
+<style>
+/* ~~~~~~~~~~ CSS SHIZZLE MA DRIZZLE GOES HERE ~~~~~~~~~~ 
+~~~~~~ To make my program look a little prettier ^_^ ~~~~~~*/
+
+#container
+{
+	position:relative;
+}
+
+#otherdiv
+{
+border:2px solid #a1a1a1;
+padding:10px 20px; 
+background:#FFE8F4;
+border-radius:25px;
+float:left;
+clear: left;
+height:125px;
+width:200px;
+text-align:center;
+visibility:hidden;
+position:static;
+}
+
+#help
+{
+ border:2px solid #a1a1a1;
+ padding:10px 20px; 
+ background:#FFE8F4;
+ border-radius:25px;
+ float:left;
+ clear: left;
+ height:380px;
+ width:200px;
+ text-align:center;
+ visibility:hidden;
+ position:static;
+}
+
+#content
+{
+height:100%;
+width:65%;
+margin-left:auto;
+margin-right:auto;
+}
+
+p.helpinfo
+{
+	font: 10px verdana;
+}
+
+p.helpinfo2
+{
+	font: 10px verdana;
+}
+
+table.gametable
+{
+	font: 11px verdana;
+}
+
+table.box 
+{
+    border-top: 1px solid #000;
+    border-right: 1px solid #000;
+}
+	
+table.box td 
+{
+    border-bottom: 1px solid #000;
+    border-left: 1px solid #000;
+}
+
+/* ~~~~~~~~~~ CSS SHIZZLE MA DRIZZLE GOES HERE ~~~~~~~~~~ */
+</style>
+</head>
+
+<body>
+
+<div id="container">
+<div id="otherdiv" class="otherdiv">
+<center><table width='175' id="gameinfo" class="gametable">
+<b>Game Information</b>
+	<tr>
+	   <td>
+	   Rounds So Far -- <font id="showRounds">0</font><br>
+	   User's Score -- <font id="showUserScore">0</font><br>
+	   Computer's Score -- <font id="showCompScore">0</font>
+	  </td>
+	</tr>
+</table></center>
+
+<br>
+<b>Moves</b>: <input type="text" id="testing1" onKeyUp="moveUserRobot()">
+</div>
+
+<div id="help">
+<b>HOW TO PLAY</b>
+<p class="helpinfo">Simply place as many pieces of treasure (value from 1-9) or obstacles onto the grid. 
+When you're finished place your robot onto the grid and press END SETUP. 
+If you have correctly followed this then the computer's robot will be placed on the grid then PLAY mode will be initiated!</p>
+
+<b>GOAL OF THE GAME</b>
+<p class="helpinfo2">Using the 'Moves' field, enter movements for your robot 
+(a = left, w = up, x = down, and d = right) and whoever get's the most treasure wins!
+When there is no treasure left or both robots cannot move then the game finishes. 
+It also ends whenever you decide to end the game. Good luck! 
+<br><br>
+By: Fumiko Saito 
+<br>
+<img src="http://www.u.arizona.edu/%7Epatricia/cute-collection/cats/ccat44.gif" onClick=hideHelp(); title="Click me to hide info!"></img></p>
+</div>
+
+<div id="content">
+<center>
+  <img src="http://oi58.tinypic.com/ms2d5x.jpg"></img>
+  <img src="http://i61.tinypic.com/110dbt2.png"></img>
+  <img src="http://oi58.tinypic.com/ms2d5x.jpg"></img>
+</center>
+ 
+<script type="text/javascript" src="game.js"></script>
+<script type="text/javascript">showArray(array);</script>
+</div>
+</body>
+</html>
+</html>

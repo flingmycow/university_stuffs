@@ -1,0 +1,136 @@
+*** some useful operations for working with lines of text
+
+*** Version 2.0
+*** 
+*** Changes:
+***
+*** 1. getLine returns the empty string if its argument doesn't contain "\n".
+***    This makes it more like the Java method BufferedReader#readLine().
+*** 2. Operation hasLine is added, to test whether a string contains "\n".
+*** 3. Operation isIntStr is added, to test whether a string can be converted
+***    to an integer.
+***
+
+fmod  UTILITIES  is
+
+  *** importing Maude's built-in operations for converting
+  *** numbers to strings, and vice-versa.
+  protecting  CONVERSION .
+  
+  
+    *** Convert a string to an integer.
+    *** For example strToInt("27") = 27 .
+    ***
+  op  strToInt : String -> Int .
+  
+  
+    *** Convert an integer to a string.
+    *** For example intToStr(27) = "27" .
+    ***
+  op  intToStr : Int -> String .
+  
+  
+    *** Test whether a string can be converted to an integer.
+    *** For example, isIntStr("27"); not(isIntStr("hello"))
+    ***
+  op  isIntStr : String -> Bool .
+  
+    *** Add a given string (2nd argument) to the start of every line
+    *** in a string (1st argument).
+    *** For example, prefixLinesWith("hello\nworld", "1")
+    *** gives "1hello\n1world"
+    ***
+  op  prefixLinesWith : String String -> String .
+    
+    
+    *** Test whether a string contains at least one newline character.
+    *** For example, hasLine("hello\nall"); not(hasLine("hello"))
+    ***
+  op  hasLine : String -> Bool .
+    
+
+        *** Get the first line in a string.
+    *** For example getFirstLine("hello\nworld") = "hello"
+    ***
+  op  getFirstLine : String -> String .
+    
+    
+    *** Remove the first line of a string.  For example,
+    *** afterFirstLine("hello\nworld\ngoodbye") = "world\ngoodbye"
+    ***
+  op  afterFirstLine : String -> String .
+  
+  
+  vars  S P : String .
+  var   I : Int .
+  
+    *** strToInt:
+    *** use Maude's operation rat to convert the string to
+    *** an integer in base 10:
+    ***
+  eq  strToInt(S)  =  rat(S, 10) .
+  
+    *** intToStr:
+    *** use Maude's operation string to convert the integer to
+    *** its string representation in base 10:
+    ***
+  eq  intToStr(I)  =  string(I, 10) .
+  
+    *** isIntStr:
+    *** test whether the result of strToInt behaves like a number
+    ***
+  eq  isIntStr(S)  =  strToInt(S) + 0 == strToInt(S) .
+
+
+    *** If S is a single line, prefixing with S is just P + S:
+    ***
+  ceq  prefixLinesWith(S, P)  =  P + S
+    if  find(S, "\n", 0) == notFound .  *** i.e., no newline in S
+  
+  
+    *** prefixLinesWith:
+    *** If S consists of at least two lines, prefix P to the first line,
+    *** and recursively carry on for what follows the first line:
+    ***
+  ceq  prefixLinesWith(S, P)  =
+          P + getFirstLine(S)
+	    + "\n"
+            + prefixLinesWith(afterFirstLine(S), P)
+    if  find(S, "\n", 0) =/= notFound .  *** i.e., S contains "\n"
+    
+    
+    *** hasLine:
+    *** search for "\n"
+    ***
+  eq  hasLine(S)  =  find(S, "\n", 0) =/= notFound .
+
+
+    *** getFirstLine:
+    *** First line of S is the empty string if it doesn't contain "\n":
+    ***
+  ceq  getFirstLine(S)  =  ""  if  find(S, "\n", 0) == notFound .
+  
+  
+    *** Otherwise, the first line is the substring from
+    *** position 0 to the first occurrence of "\n",
+    *** which is given by find(S, "\n", 0):
+    ***
+  ceq  getFirstLine(S)  =  substr(S, 0, find(S, "\n", 0))
+    if  find(S, "\n", 0) =/= notFound .
+  
+  
+    *** afterFirstLine:
+    *** removing the first line gives the empty string
+    *** if S doesn't contain "\n":
+    ***
+  ceq  afterFirstLine(S)  =  ""  if  find(S, "\n", 0) == notFound .
+
+  
+    *** otherwise, gives the substring from the first occurrence
+    *** of "\n" to the end of the string:
+    ***
+  ceq  afterFirstLine(S)  =  substr(S, 1 + find(S, "\n", 0),
+	                               length(S) - find(S, "\n", 0))
+    if  find(S, "\n", 0) =/= notFound .
+  
+endfm

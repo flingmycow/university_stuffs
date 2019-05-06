@@ -1,0 +1,54 @@
+<html>
+<head>
+<title>CAN I GET A SOMBODY</title>
+<script type="text/javascript">
+
+function random(number)
+{
+   this.number = '0';
+   sum = Math.floor((Math.random()*9)+1);
+   return sum;
+}
+
+function switchNum()
+{
+   number = random(number);
+}
+
+// To calculate the sum of all the numbers.
+function calculate()
+{
+   totalOfNum = sum;
+
+  function open()
+  {
+    var newWin = window.open("The total of all the numers is " +totalOfNum+ "<br>");
+    newWin.document.open()
+  }
+}
+</script>
+
+
+</head>
+
+
+<body>
+<script type="text/javascript">
+// Create a table with 0 in all of them.
+document.writeln("<table border=’1px’ cellpadding=’10px’ width='400px'>")
+for (i = 0; i < 10; i++)
+{
+	document.writeln("<tr><td>" +random()+ "</td><td>" +random()+ "</td><td>" +random()+ "</td></tr>")
+}
+document.writeln("</table><br>")
+
+</script>
+
+<form name="form1" id="button" action="">
+<p>
+<button onClick="calculate()" id="calculate">Calculate</button>
+
+</p></form>
+</body>
+</html>
+

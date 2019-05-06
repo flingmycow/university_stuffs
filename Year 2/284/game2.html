@@ -1,0 +1,346 @@
+<html>
+<head>
+<title>Fumiko's Soon To Be Game</title>
+
+
+<script>
+// 11111111111111111111111111111111111111111111111111111
+// SETUP STAGE OF ULLRICH'S ASSIGNMENT / TREASURE GAME!!
+// 11111111111111111111111111111111111111111111111111111
+
+// Variables to be used in the program
+var noOfRounds = 0;
+var userScore = 0;
+var compScore = 0;
+var userRobot = 1;
+
+// Create array of size 10
+array = new Array(10);
+
+for (i = 0; i < 10; i++) 
+{
+  array[i] = new Array(10);
+  
+  for (j = 0;j < 10; j++)
+  {	
+  	array[i][j] = ' ';
+  }
+}
+
+// Simply shows a 10x10 grid.
+function showTable(array) 
+{
+  document.writeln("<center><table border='1'>\n");
+  for (i = 0;i < array.length; i++) 
+  {
+  	document.writeln("<tr>");
+  	for (j = 0;j < array[i].length; j++) 
+  	{
+  	id = i * array[i].length + j;
+  	document.writeln("<td id='"+id+"' width='45' height='45' align='center' onclick='clicked("+i+","+j+");'><font size='+2'>"+array[i][j]+"</font></td>");
+  	}
+  	
+  	document.writeln("</tr>\n");
+  }
+  
+  document.writeln("</table></font>\n");
+  document.writeln("<button type='button' onclick='calculate();'>Calculate</button>");
+  document.writeln("<button type='button' onclick='endSetup();'>End Setup Stage!</button>");
+  document.writeln("<button type='button' onclick='endPlay();'>End Play Stage!</button>");
+  document.writeln("<button type='button' onclick='showHelp();'>Help?</button>");
+  
+  // alert("Welcome to the Robot Treasure Hunt Game - You must place treasure and objects on the grid first then once you are finished press END SETUP");
+  
+}
+
+function showHelp()
+{
+	alert("HOW TO PLAY - Place as many pieces of treasure with a value of 1-9, or obstacles on the grid. You also need to place your robot (only once) onto the grid. When you have finished your turn click End Setup! and the computer will place their robot on the grid which will be a green U."); 
+	alert("GOAL OF THE GAME - Get more treasure than the computer. When there is no treasure left or both robots cannot move then the game finishes. It also ends whenever you decide to end the game as well. Good luck! =}");
+}
+
+// Changes the number in the box to a random number.
+function clicked (i,j) {
+
+  // id = position i multiplied by length of array[i] + j? determines location of clicked square?
+  id = i * array[i].length + j;
+  
+  // This simply says if there's nothing in the square, execute the getValue function
+  if (array[i][j] == ' ')
+  {
+  	value = getValue();
+ 	array[i][j] = value;
+  
+ 	if (value == 'u' && userRobot == 1)
+ 	{
+ 		document.getElementById(id).innerHTML = "<font size='3' color='#CC66FF'>"+array[i][j]+"</font>";
+ 		userRobot = 0;
+ 	}
+ 	
+ 	else if (value == 'o')
+ 	{
+ 		document.getElementById(id).innerHTML = "<font size='3' color='orange'>"+array[i][j]+"</font>";
+ 	}
+ 	
+ 	else if (value == 'u' && userRobot == 0)
+ 	{
+ 		alert("You already put down your robot!");
+ 	}
+ 	
+ 	else
+ 	{
+  		document.getElementById(id).innerHTML = "<font size='3'>"+array[i][j]+"</font>";
+  	}
+  }
+  
+  else
+  {
+  	alert("You cannot change the value in a square!");
+  }
+  
+}
+
+// Gets a value from the user to put into the grid
+function getValue()
+{
+	var value = prompt("Please enter 1-9, o or u","");
+	
+	if (value == 'o' || value == 'u' || (value <= 9 && value >= 1))
+	{
+		return value;
+	}
+		
+	else
+	{
+		if (value != 'o' || value != 'u' || value > 9 || value < 1)
+		{
+			alert("That is not a valid letter/number in this game!");
+			var value = prompt("Please enter 1-9, o or u","");
+		}	
+		
+		return value;
+	}
+}
+
+function endSetup()
+{
+	var placed = 0;
+	
+	for (i = 0; i < 10; i++)
+	{
+		for (j = 0; j < 10; j++)
+		{
+			if (array[i][j] == 'u')
+			{
+				placed = 1;
+			}
+		}
+	}
+	
+	if (placed == 0)
+	{
+		alert("You did not place your robot!");
+	}
+	
+	else
+	{
+		alert("You have successfully placed your objects.");
+		
+		compRobot();
+	}
+}
+
+// 22222222222222222222222222222222222222222222222222222
+// SETUP STAGE OF ULLRICH'S ASSIGNMENT / TREASURE GAME!!
+// 22222222222222222222222222222222222222222222222222222
+
+function showScores()
+{
+	document.writeln("<br><br><center><table border='1' style='solid' width='270'><th><b>Game Info<b></th><tr><td>");
+	document.writeln("<b><font color='#FF99CC'>Rounds So Far -- </b> " +noOfRounds+ "<br><b>User's Score -- </b>" 
+	+userScore+ "<br><b>Computer's Score -- </b>" +compScore);
+	document.writeln("</font></tr></td></table></center>");
+}
+
+// This function is for the computer to place their robot on the grid.
+function compRobot()
+{
+	// To check that the computer's robot hasn't already been placed yet.
+	var placed = 0;
+	
+	for (i = 0; i < 10; i++)
+	{
+		for (j = 0; j < 10; j++)
+		{
+			if (array[i][j] == 'U')
+			{
+				placed = 1;
+			}
+		}
+	}
+	
+	if (placed == 0)
+	{
+		var iPos = Math.floor(Math.random()*10);	// Gets a random number for y co-ordinates from 0-9
+		var jPos = Math.floor(Math.random()*10);	// Gets a random number for x co-ordinates from 0-9
+	
+		if (array[iPos][jPos] == ' ')
+		{
+			array[iPos][jPos] = "U"
+		
+			id = iPos * array[iPos].length + jPos;
+		
+			document.getElementById(id).innerHTML = "<font size='3' color='#33CC33'>"+array[iPos][jPos]+"</font>"
+		}
+	}
+	
+	else
+	{
+		alert("Why are you pressing end setup again?");
+	}
+}
+
+// Function for moving the user's robot
+function moveUserRobot(i,j)
+{
+	id = i * array[i].length + j;
+	
+	var move = prompt("Please enter 'a' to move left, 'd' to move right, 'w' to move up or 'x' to move down all by 1 cell","");
+	
+	if (move == 'a')
+	{
+		j = j - 1; // Move 1 to the left.
+	}
+	
+	else if (move == 'd')
+	{
+		j = j + 1; // Move 1 to the right.
+
+	}
+	
+	else if(move == 'w')
+	{
+		i = i + 1;
+	}
+	
+	else if(move == 'x')
+	{
+		i = i - 1;
+	}
+	
+	else
+	{
+		alert("You have put in an invalid move!");
+	}
+	
+	id1 = i * array[i].length + j; // new position
+	
+	// Checks that the element at the position isn't occupied by an obstacle or robot
+	if (array[i][j] != 'o' || array[i][j] != 'U')
+	{
+		
+		if ( (i >= 0 || i <= 9) || (j >= 0 || j <= 9) )
+		{
+			document.getElementById(id1).innerHTML = "<font size='3' color='#CC66FF'>"+array[i][j]+"</font>"
+			document.getElementById(id).innerHTML = "<font> </font>"
+		}
+	}
+	
+}
+
+// Not FINISHED!
+function moveCompRobot(v1, v2)
+{	
+	var elements = new Array();
+	var pos = 0;
+	
+	id = i * array[i].length + j;
+	
+	// To check all the surrounding cells. Should go through 9 squares.
+	for (a = i - 1; a <= i + 1; i++)
+	{
+		for (b = j - 1; b <= j + 1; j++)
+		{
+			element[pos] = array[a][b];
+			pos++;
+		}
+	}
+	
+	// Check through all the elements and pick the highest value
+	for (c = 0; c < 9; c++)
+	{
+		
+	}
+}
+
+function endPlay()
+{
+
+}
+
+// 333333333333333333333333333333333333333333333333333
+// END STAGE OF ULLRICH'S ASSIGNMENT / TREASURE GAME!!
+// 333333333333333333333333333333333333333333333333333
+
+// To calculate the total value of all the numbers on the board.
+function calculate() 
+{
+	sum = 0;
+	
+	for (i = 0;i < array.length; i++) 
+	{
+		for (j = 0;j < array[i].length; j++) 
+		{
+			sum += array[i][j];
+		}
+	}
+	
+  alert("The sum of all the numbers on the board is "+sum);
+}
+
+function calculateUser()
+{
+
+}
+
+function calculateComp()
+{
+
+}
+
+function displayFinal()
+{
+	if (userScore > compScore)
+	{
+		alert("Congratulations you have beat the computer!");
+	}
+	
+	else if (gameScore > userScore)
+	{
+		alert("Unfortunately the computer has beaten you this time! Try again?");
+	}
+	
+	else if (userScore == gameScore)
+	{
+		alert("No ones a winner this time! Both scores are equal. Try again?");
+	}
+}
+
+
+</script>
+</head>
+<body>
+
+<center><img src="http://oi58.tinypic.com/ms2d5x.jpg"></img>
+<img src="http://i61.tinypic.com/110dbt2.png"></img>
+<img src="http://oi58.tinypic.com/ms2d5x.jpg"></img>
+</center>
+
+<script>
+// Implements the showTable function which shows the grid the player inserts values into
+showTable(array);
+showScores();
+</script>
+
+</body>
+</html>
